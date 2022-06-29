@@ -152,5 +152,5 @@ tc.logCPM <- tc.logCPM %>%
 tc.logCPM <- right_join(tc.logCPM, RNAseqInfo.B2.bad.extra, by = c('Sample' = "Count"))
 tc.logCPM$rep <- tc.logCPM$Bio_rep
 
-saveRDS(tc.logCPM, '../Input/Toxo_lab_adapt/RDS//extra_tc_logCPM.rds')
+saveRDS(tc.logCPM, '../Input/Toxo_lab_adapt/RDS/extra_tc_logCPM.rds')
 

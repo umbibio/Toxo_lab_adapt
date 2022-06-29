@@ -209,6 +209,7 @@ peak.gene.count.ave <- peak.gene.count.ave %>% group_by(gene_name) %>% summarise
 # rename samples (column)
 X <- lapply(strsplit(colnames(peak.gene.count.ave), "\\_"), `[[`, 1)
 XX <- sub(".*\\.", "", X) 
+XX <- gsub("gene", "gene_name", XX)
 
 colnames(peak.gene.count.ave) <- XX
 
