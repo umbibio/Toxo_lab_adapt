@@ -175,15 +175,8 @@ write.table(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma
 write.xlsx(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_merged_peaks_final.xlsx")
 
 
-## up to here ##
+
 ##########################
-# 
-# peaks.genes.dist.filt <- read.xlsx("../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
-# peaks.Region.bed <- peaks.genes.dist.filt %>% dplyr::select(V1:V4) %>% distinct(V4,  .keep_all = T)
-# 
-# write.table(peaks.Region.bed, file="../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union/peaksRegion.bed",
-#             quote=F, sep="\t", row.names=F, col.names=F)
-# 
 
 
 
@@ -198,34 +191,51 @@ write.xlsx(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma/
 
 
 
-## add gene names to peak region count table
+## add gene names to peak region in the count table
 
 count <- read.table("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/peaks_count.txt", header = T, sep = '\t', stringsAsFactors = F)
 count$Geneid <- sub("^([^_]+)_([^_]+)_([^_]+)_", "\\1_\\2:\\3-", count$Geneid)
 count <- count %>% dplyr::select(Geneid, colnames(count)[grepl("P[0-9]|RH", colnames(count))])
 
+
 Peaks_Genes_assigned <- read.xlsx("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
 Peaks_Genes_assigned <- Peaks_Genes_assigned %>% dplyr::transmute(gene_name =  gene_name, peak_location = V4.x)
 
 peak.gene.count <- left_join(Peaks_Genes_assigned, count, by = c( "peak_location" = "Geneid"))  
+peak.gene.count.ave <- peak.gene.count %>% select(-peak_location) %>% group_by(gene_name) %>% summarise_all("mean")
+peak.gene.count.ave <- peak.gene.count.ave %>% group_by(gene_name) %>% summarise_all("ceiling")
 
-narrow.peaks.dir <-  "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_stringent/"
-nr.peaks <- list.files(path = narrow.peaks.dir, pattern = ".narrowPeak")
-X <- strsplit(nr.peaks, "\\.")
 
-Names <- gsub("_peaks", "", sapply(X, "[", 1))
-cond <- rep("extra", 8) 
-passage <- gsub("_S[0-9]","", c(sapply(strsplit(Names, "-"), "[" , 5)[-c(7,8)], "RH","RH_gDNA"))
-treatment <- paste(cond, passage, sep = ".")
-Sample <- gsub(".*_", "", Names)
+# rename samples (column)
+X <- lapply(strsplit(colnames(peak.gene.count.ave), "\\_"), `[[`, 1)
+XX <- sub(".*\\.", "", X) 
 
-expmnt <- data.frame(Names, cond, passage, treatment, Sample)
-expmnt
+colnames(peak.gene.count.ave) <- XX
 
-colnames(peak.gene.count)[3:10] <- treatment
+write.xlsx(peak.gene.count.ave, "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts_avg_final.xlsx")
 
-write.xlsx(peak.gene.count, "../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts.xlsx")
 
+
+## up to here ##
+
+# narrow.peaks.dir <-  "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_stringent/"
+# nr.peaks <- list.files(path = narrow.peaks.dir, pattern = ".narrowPeak")
+# 
+# 
+# 
+# Names <- gsub("_peaks", "", sapply(X, "[", 1))
+# cond <- rep("extra", 8) 
+# passage <- gsub("_S[0-9]","", c(sapply(strsplit(Names, "-"), "[" , 5)[-c(7,8)], "RH","RH_gDNA"))
+# treatment <- paste(cond, passage, sep = ".")
+# Sample <- gsub(".*_", "", Names)
+# 
+# expmnt <- data.frame(Names, cond, passage, treatment, Sample)
+# expmnt
+# 
+# colnames(peak.gene.count)[3:10] <- treatment
+# 
+# write.xlsx(peak.gene.count, "../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts.xlsx")
+# 
 
 # #######################################################
 # ################ Normaliization #######################
