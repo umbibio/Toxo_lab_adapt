@@ -19,12 +19,12 @@ library(edgeR)
 ############ Raw counts per region ####################
 #######################################################
 
-gtf.file <- "../Input/compScBdTgPb/BulkATACToxoPlasma/Genome/ToxoDB-56_TgondiiGT1.gtf"
+gtf.file <- "../Input/Toxo_genomics/Genome/ToxoDB-56_TgondiiGT1.gtf"
 gtf <- read.table(gtf.file, header = F, sep = '\t', quote = NULL)
 
 ## using qval = 0.01 and gene size 69350000 bp in macs2 calling 
 ## narrow peaks called by macs2
-narrow.peaks.dir <-  "../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_stringent/"
+narrow.peaks.dir <-  "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_stringent/"
 nr.peaks <- list.files(path = narrow.peaks.dir, pattern = ".narrowPeak")
 nr.peaks <- nr.peaks[-8] # remove gDNA 
 
@@ -49,12 +49,12 @@ names(nr.peaks.list) <- samples[indx]
 ## on markov 
 ## cat *.narrowPeak | sort -k1,1 -k2,2n | mergeBed -i stdin > narrowPeaksUnion.bed
 
-narrowPeaksUnion <- read.table("../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/narrowPeaksUnion.bed", 
+narrowPeaksUnion <- read.table("../Input/Toxo_lab_adapt//BulkATACToxoPlasma/macs2_Union/narrowPeaksUnion.bed", 
                                header = F, sep = "\t", quote = NULL)
 
 
 # generate narrow peaks for each sample using Union Peak regions file to load into IGV
-out_dir <- ".../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union"
+out_dir <- "../Input/Toxo_lab_adapt/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union"
 UnionPeaksRegion.list <- lapply(1:length(nr.peaks.list), function(i){
   
   NAME = paste(paste(names(nr.peaks.list[i]), "Union", sep = "_"), "narrowPeak", sep = ".")
@@ -154,14 +154,14 @@ peaks.genes.dist.trns.filt <- peaks.genes.dist.trns %>% dplyr::filter(abs(V16) <
 tmp <- peaks.genes.dist.trns.filt %>% group_by(V4.x) %>% summarise(total = length(unique(gene_name)))
 tmp.2 <- peaks.genes.dist.trns.filt %>% group_by(gene_name) %>% summarise(total = length(unique(V4.x)))
 
-write.xlsx(peaks.genes.dist.trns.filt, "../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
+write.xlsx(peaks.genes.dist.trns.filt, "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
 
 # prep bed format 
 # merge multiple peaks assigned to a single gene
 # the duplicated peaks are the bidirectioonal peaks 
 
-peak.genes <- read.xlsx("../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
-peak.genes <- peak.genes.bed %>% select(V1.x, V2.x, V3.x, V11, gene_name) 
+peak.genes <- read.xlsx("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
+peak.genes <- peak.genes %>% select(V1.x, V2.x, V3.x, V11, gene_name) 
 peak.genes.bed.merged <- peak.genes %>% arrange(V2.x) %>% 
   group_by(gene_name) %>% mutate(start_peak = V2.x[which.min(V2.x)], end_peak = V3.x[which.max(V3.x)])  %>% 
   mutate(V4 = ".", V5 = ".")
@@ -175,6 +175,7 @@ write.table(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma
 write.xlsx(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_merged_peaks_final.xlsx")
 
 
+## up to here ##
 ##########################
 # 
 # peaks.genes.dist.filt <- read.xlsx("../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
@@ -199,16 +200,16 @@ write.xlsx(peak.genes.bed.merged.bed, "../Input/compScBdTgPb/BulkATACToxoPlasma/
 
 ## add gene names to peak region count table
 
-count <- read.table("../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union/peaks_count.txt", header = T, sep = '\t', stringsAsFactors = F)
+count <- read.table("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/peaks_count.txt", header = T, sep = '\t', stringsAsFactors = F)
 count$Geneid <- sub("^([^_]+)_([^_]+)_([^_]+)_", "\\1_\\2:\\3-", count$Geneid)
 count <- count %>% dplyr::select(Geneid, colnames(count)[grepl("P[0-9]|RH", colnames(count))])
 
-Peaks_Genes_assigned <- read.xlsx("../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
-Peaks_Genes_assigned <- Peaks_Genes_assigned %>% dplyr::transmute(gene_name =  gene_name, peak_location = V4)
+Peaks_Genes_assigned <- read.xlsx("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/Peaks_Genes_assigned.xlsx")
+Peaks_Genes_assigned <- Peaks_Genes_assigned %>% dplyr::transmute(gene_name =  gene_name, peak_location = V4.x)
 
 peak.gene.count <- left_join(Peaks_Genes_assigned, count, by = c( "peak_location" = "Geneid"))  
 
-narrow.peaks.dir <-  "../Input/compScBdTgPb/BulkATACToxo/Input/BulkATACToxoPlasma/macs2_stringent/"
+narrow.peaks.dir <-  "../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_stringent/"
 nr.peaks <- list.files(path = narrow.peaks.dir, pattern = ".narrowPeak")
 X <- strsplit(nr.peaks, "\\.")
 
