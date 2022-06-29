@@ -6,13 +6,20 @@ library(dplyr)
 library(tidyverse)
 library(splines)
 
-count.tab <- read.xlsx("../Input/compScBdTgPb/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts.xlsx")
+count.tab <- read.xlsx("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts_avg_final.xlsx")
+#count.tab <- read.xlsx("../Input/Toxo_lab_adapt/BulkATACToxoPlasma/macs2_Union/peak_gene_assigned_raw_counts_old.xlsx")
 count.tab <- count.tab %>% na.omit()
+colnames(count.tab)[2:ncol(count.tab)] <- paste("extra", colnames(count.tab)[2:ncol(count.tab)], sep = ".")
 
-count.ave <- count.tab[, 3:ncol(count.tab)]
-count.ave$GeneID <- count.tab$gene_name
-count.ave <- count.ave %>% group_by(GeneID) %>% summarise_all("mean")
-count.ave <- count.ave %>% group_by(GeneID) %>% summarise_all("ceiling")
+
+# this part is done in peak gene assignment code 
+
+#count.ave <- count.tab[, 3:ncol(count.tab)]
+count.ave <- count.tab
+colnames(count.ave) <- gsub("gene_name", "GeneID", colnames(count.ave))
+
+# count.ave <- count.ave %>% group_by(GeneID) %>% summarise_all("mean")
+# count.ave <- count.ave %>% group_by(GeneID) %>% summarise_all("ceiling")
 
 
 ## Detecting Bias
@@ -106,5 +113,5 @@ tc.logCPM <- tc.logCPM %>%
 tc.logCPM$passage <- gsub("extra.", "", tc.logCPM$Sample)
 tc.logCPM$Time <- as.numeric(gsub("extra.P", "", tc.logCPM$Sample))
 
-saveRDS(tc.logCPM, '../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_atac_logCPM.RData')
+saveRDS(tc.logCPM, '../Input/Toxo_lab_adapt/RDS//extra_tc_atac_logCPM.rds')
 
