@@ -8,7 +8,7 @@ library(splines)
 
 #### Test the files
 #### This folder contains the output of feature count. Change as appropriate
-fc.files.dir  <- "../Input/Toxo_lab_adapt/BulkRNAToxoplasma/RNAseqCounts/"
+fc.files.dir  <- "../Input/Toxo_lab_adapt/BulkRNAToxoPlasma/RNAseqCounts/"
 ### My feature coutn file names end in counts.txt, hence the grep. Change if not needed
 fc.files  <- file.path(fc.files.dir, list.files(fc.files.dir)[grep("counts.txt$", list.files(fc.files.dir))])
 
@@ -152,5 +152,5 @@ tc.logCPM <- tc.logCPM %>%
 tc.logCPM <- right_join(tc.logCPM, RNAseqInfo.B2.bad.extra, by = c('Sample' = "Count"))
 tc.logCPM$rep <- tc.logCPM$Bio_rep
 
-saveRDS(tc.logCPM, '../Input/Toxo_lab_adapt/RDS/extra_tc_logCPM.rds')
+saveRDS(tc.logCPM, '../Input/Toxo_lab_adapt/RDS/extra_tc_rna_logCPM.rds')
 
