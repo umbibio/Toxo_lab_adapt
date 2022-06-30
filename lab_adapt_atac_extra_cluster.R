@@ -2,22 +2,19 @@ library(dtwclust)
 library(bigmemory)
 library(doParallel)
 library(tidyverse)
-
 library(tidytext)
 library(gridExtra)
 library(gt)
-
 library(grid)
-#library(fda)
-#library(sme)
+library(fda)
+library(sme)
 library(openxlsx)
-#library(tvReg)
+library(tvReg)
 
 source("./util_funcs.R")
 
-
-
-extra.tc.logCPM.atac <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_atac_logCPM.RData')
+extra.tc.logCPM.atac <- readRDS('../Input/Toxo_lab_adapt/RDS/extra_tc_atac_logCPM.rds')
+#extra.tc.logCPM.atac <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_atac_logCPM.RData')
 genes <- unique(extra.tc.logCPM.atac$GeneID)
 
 
@@ -40,7 +37,7 @@ extra.atac.spline.fits <- mclapply(1:length(genes), function(i){
 
 extra.atac.spline.fits <- bind_rows(extra.atac.spline.fits)
 
-extra.atac.spline.fits.filt <- extra.atac.spline.fits %>% dplyr::filter(adj.r.squared > 0.5 & trend.fdr < 0.35) ## 1791
+extra.atac.spline.fits.filt <- extra.atac.spline.fits %>% dplyr::filter(adj.r.squared > 0.5 & trend.fdr < 0.35) ## 1744
 
 extra.atac.dtw.wide <- extra.atac.spline.fits.filt %>% 
   pivot_wider(-c(adj.r.squared, trend.fdr, trend.pval), names_from = 'GeneID', values_from = 'y') %>%
@@ -50,12 +47,14 @@ extra.atac.dtw.wide <- extra.atac.spline.fits.filt %>%
 ## Generate the clusters
 num.clust <- 2L
 
-#extra.atac.hc_dtws <- dtwClustCurves(extra.atac.dtw.wide[2:ncol(extra.atac.dtw.wide)], nclust = num.clust)
+extra.atac.hc_dtws <- dtwClustCurves(extra.atac.dtw.wide[2:ncol(extra.atac.dtw.wide)], nclust = num.clust)
 
-#saveRDS(extra.atac.hc_dtws, '../Input/compScBdTgPb/LabAdaptationRNA/extra.atac.hc_dtws_all.rds')
+saveRDS(extra.atac.hc_dtws, '../Input/Toxo_lab_adapt/RDS/extra.atac.hc_dtws_all.rds')
 
 ## Run from here
-extra.atac.hc_dtws <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra.atac.hc_dtws_all.rds')
+#extra.atac.hc_dtws <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra.atac.hc_dtws_all.rds')
+extra.atac.hc_dtws <- readRDS('../Input/Toxo_lab_adapt/RDS/extra.atac.hc_dtws_all.rds')
+
 
 plot(extra.atac.hc_dtws, type = 'sc')
 plot(extra.atac.hc_dtws, type = "series", clus = 2L)
@@ -101,7 +100,7 @@ extra.atac.dtw.long$is.trending <- ifelse(extra.atac.dtw.long$R2 > 0.4, 'yes', '
 extra.atac.dtw.long$trending <- ifelse(extra.atac.dtw.long$slope > 0, 'up', 'down')
 extra.atac.dtw.long.filt <- extra.atac.dtw.long %>% dplyr::filter(is.trending == 'yes')
 
-saveRDS(extra.atac.dtw.long.filt, "../Input/compScBdTgPb/RData/extra.atac.dtw.long.filt.RData")
+saveRDS(extra.atac.dtw.long.filt, "../Input/Toxo_lab_adapt/RDS//extra.atac.dtw.long.filt.RData")
 
 p <- ggplot(extra.atac.dtw.long.filt, aes(x = x, y = y, group = GeneID)) +
   geom_line(aes(x = x, y = y, color = factor(cluster)), alpha = 0.4) +
@@ -120,7 +119,7 @@ ggsave(filename="../Output/compScBdTgPb/figs/lab_adapt_trending_atac_2_clusters.
 )
 
 
-saveRDS(extra.atac.dtw.long.filt, "../Input/compScBdTgPb/RData/extra_atac_dtw_trending_2_clusters.rds")
+saveRDS(extra.atac.dtw.long.filt, "../Input/Toxo_lab_adapt/RDS/extra_atac_dtw_trending_2_clusters.rds")
 
 
 
