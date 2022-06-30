@@ -42,7 +42,7 @@ plot.trend <- function(gene.id, gene.name, extra.tc.logCPM){
 }
 
 
-extra.tc.logCPM <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_logCPM.RData')
+extra.tc.logCPM <- readRDS('../Input/Toxo_lab_adapt/RDS/extra_tc_rna_logCPM.rds')
 
 #gene.id <- 'TGGT1_215895'
 #gene.name <- 'IX-10'
@@ -94,7 +94,7 @@ num.clust <- 2L
 
 ## Run from here
 #extra.rna.hc_dtws <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra.rna.hc_dtws.rds')
-extra.rna.hc_dtws <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra.rna.hc_dtws_less_stringent.rds')
+extra.rna.hc_dtws <- readRDS('../Input/Toxo_lab_adapt/RDS/extra.rna.hc_dtws_less_stringent.rds')
 
 plot(extra.rna.hc_dtws, type = 'sc')
 plot(extra.rna.hc_dtws, type = "series", clus = 1L)
@@ -127,7 +127,7 @@ extra.rna.dtw.long$is.trending <- ifelse(extra.rna.dtw.long$R2 > 0.4, 'yes', 'no
 extra.rna.dtw.long$trending <- ifelse(extra.rna.dtw.long$slope > 0, 'up', 'down')
 extra.rna.dtw.long.filt <- extra.rna.dtw.long %>% dplyr::filter(is.trending == 'yes')
 
-saveRDS(extra.rna.dtw.long.filt, "../Input/compScBdTgPb/RData/extra_rna_dtw_long_filt.rds")
+saveRDS(extra.rna.dtw.long.filt, "../Input/Toxo_lab_adapt/RDS/extra_rna_dtw_long_filt.rds")
 
 # p <- ggplot(extra.rna.dtw.long, aes(x = x, y = y, group = GeneID)) + 
 #   geom_line(aes(x = x, y = y, color = factor(cluster)), alpha = 0.4) + 
