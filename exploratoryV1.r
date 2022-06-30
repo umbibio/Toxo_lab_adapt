@@ -20,8 +20,8 @@ source("./util_funcs.R")
 ## match RNA with ATAC
 
 #extra.rna.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_rna_dtw_trending_2_clusters.rds")
-extra.rna.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
-extra.atac.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_atac_dtw_trending_2_clusters.rds")
+extra.rna.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
+extra.atac.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_atac_dtw_trending_2_clusters.rds")
 
 p <- ggplot(extra.rna.dtw.long.filt, aes(x = x, y = y, group = GeneID)) + 
   geom_line(aes(x = x, y = y, color = trending), alpha = 0.4) + 
@@ -129,7 +129,7 @@ extra.atac.summ <- extra.atac.dtw.long.filt %>% distinct(GeneID, .keep_all = T) 
 matched.rna.atac <- inner_join(extra.rna.dtw.long.filt, extra.atac.dtw.long.filt, by = "GeneID") %>% 
   dplyr::select(GeneID, everything())
 
-saveRDS( matched.rna.atac,"../Input/compScBdTgPb/RData/matched_extra_rna_atac_dtw_trending_2_clusters.rds")
+saveRDS( matched.rna.atac,"../Input/Toxo_lab_adapt/RDS/matched_extra_rna_atac_dtw_trending_2_clusters.rds")
 
 
 # ATAC expr for corresponding genes in RNA clusters
@@ -222,13 +222,14 @@ plot.rna.trend <- function(gene.id, gene.name ,tc.logCPM){
   
 }
 
-extra.tc.logCPM.rna <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_logCPM.RData')
-extra.tc.logCPM.atac <- readRDS('../Input/compScBdTgPb/LabAdaptationRNA/extra_tc_atac_logCPM.RData')
+extra.tc.logCPM.rna <- readRDS('../Input/Toxo_lab_adapt/RDS/extra_tc_rna_logCPM.rds')
+extra.tc.logCPM.atac <- readRDS('../Input/Toxo_lab_adapt/RDS/extra_tc_atac_logCPM.rds')
 
 matched.trending.rna.ata <- matched.rna.atac %>% filter(trending.x == trending.y) %>% 
   distinct(GeneID, .keep_all = T) %>%
   group_by(trending.x, cluster.x)  %>%
   summarise(genes = list(GeneID), total = n())
+
 
 
 gene <- "TGGT1_299020" ; name <- "AP2III-4"
@@ -238,6 +239,7 @@ gene <- "TGGT1_268850" ;name <- "ENO2"
 
 p1 <- plot.atac.trend(gene.id = gene, gene.name = name,tc.logCPM = extra.tc.logCPM.atac)
 p2 <- plot.rna.trend(gene.id = gene,gene.name = name, tc.logCPM = extra.tc.logCPM.rna)
+
 
 p <- do.call(grid.arrange, c(list(p1,p2), nrow=2))
 
@@ -271,13 +273,13 @@ mismatched.trending.rna.ata <- matched.rna.atac %>% filter(trending.x != trendin
 #############
 #############
 
-ENO2_targ <- read.xlsx("../Input/compScBdTgPb/genes/ENO2_chip.xlsx")
-ENO2_targ$ID <- gsub(" ", "", ENO2_targ$ID, )
-orth  <- read.xlsx("../Input/compScBdTgPb/genes/convertIDs.xlsx")
+ENO2_targ <- read.xlsx("../Input/Toxo_lab_adapt/genes/ENO2_chip.xlsx")
+# ENO2_targ$ID <- gsub(" ", "", ENO2_targ$ID, )
+orth  <- read.xlsx("../Input/Toxo_lab_adapt/genes/convertIDs.xlsx")
 ENO2_targ <- inner_join(ENO2_targ, orth, by = c("ID" = "TGME49ID") )
 
-extra.rna.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
-extra.atac.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_atac_dtw_trending_2_clusters.rds")
+extra.rna.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
+extra.atac.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_atac_dtw_trending_2_clusters.rds")
 
 
 ENO2.rna <- extra.rna.dtw.long.filt[extra.rna.dtw.long.filt$GeneID %in% ENO2_targ$TGGT1ID, ]
@@ -350,13 +352,13 @@ write.xlsx(ENO2.atac.info, "../Output/compScBdTgPb/table/ENO2_atac_info.xlsx")
 #################
 #################
 
-extra.rna.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
-extra.atac.dtw.long.filt <- readRDS("../Input/compScBdTgPb/RData/extra_atac_dtw_trending_2_clusters.rds")
-gene.desc <- read.xlsx("../Input/compScBdTgPb/genes/ProductDescription_GT1.xlsx")
+extra.rna.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
+extra.atac.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_atac_dtw_trending_2_clusters.rds")
+gene.desc <- read.xlsx("../Input/Toxo_lab_adapt/genes/ProductDescription_GT1.xlsx")
 
-hyperlopid <- read.xlsx("../Input/compScBdTgPb/genes/hyperlopit_YR.xlsx")
+hyperlopid <- read.xlsx("../Input/Toxo_lab_adapt/genes/hyperlopit_YR.xlsx")
 hyperlopid <- hyperlopid %>%  dplyr::select(Accession ,tagm.map.allocation.pred)
-toxo.orth <- read.xlsx("../Input/compScBdTgPb/genes/convertIDs.xlsx")
+toxo.orth <- read.xlsx("../Input/Toxo_lab_adapt/genes/convertIDs.xlsx")
 toxo.orth <- inner_join(toxo.orth, gene.desc, by = c("TGGT1ID" = "GeneID"))
 hyperlopid <- left_join(hyperlopid, toxo.orth, by = c("Accession" = "TGME49ID")) %>% na.omit()
 hyperlopid <- hyperlopid %>% transmute(GeneID = TGGT1ID, HL.tagm.map.allocation.pred =  tagm.map.allocation.pred)
@@ -366,8 +368,10 @@ rna.nuclear.localiz <- rna.nuclear.localiz %>% dplyr::select(GeneID, AT_orth_GO_
 
 localization.df <- left_join(hyperlopid, rna.nuclear.localiz, by = "GeneID")
 
+### ran up to here 
+
 ## arab peptide orthologs in GT1
-arab.pep.orth <- readRDS( "../Input/compScBdTgPb/RData/rec_GT1_vs_Arab_pep.RData")
+arab.pep.orth <- readRDS( "../Input/Toxo_lab_adapt/RData/rec_GT1_vs_Arab_pep.RData")
 str <- strsplit(arab.pep.orth$query_id, "-")
 arab.pep.orth$query_id <- unlist(lapply(str, "[", 1))
 
