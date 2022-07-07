@@ -237,6 +237,12 @@ gene <- "TGGT1_320680" ; name <- " AP2IV-2"
 gene <- "TGGT1_268860" ; name <- "ENO1"
 gene <- "TGGT1_268850" ;name <- "ENO2"
 
+# down regulated upon iKD of AP2X-5
+gene <- "TGGT1_318610" ; name <- "AP2IV-3"
+gene <- "TGGT1_208020" ; name <- "AP2Ib-1"
+gene <- "TGGT1_306620" ; name <- "AP2IX-9"
+gene <- "TGGT1_320680" ; name <- "AP2IV-2"
+
 p1 <- plot.atac.trend(gene.id = gene, gene.name = name,tc.logCPM = extra.tc.logCPM.atac)
 p2 <- plot.rna.trend(gene.id = gene,gene.name = name, tc.logCPM = extra.tc.logCPM.rna)
 
@@ -249,6 +255,46 @@ ggsave(filename="../Output/Toxo_lab_adapt/figs/ENO2_rna_atac_trend.png",
        units = "in", # other options are "in", "cm", "mm" 
        dpi = 300
 )
+
+genes <- c("TGGT1_268860","TGGT1_268850",  "TGGT1_299020", "TGGT1_320680",
+           "TGGT1_208020","TGGT1_306620", "TGGT1_318610" )
+
+names <- c("ENO1",  "ENO2", "AP2III-4", " AP2IV-2",
+           "AP2Ib-1", "AP2IX-9", "AP2IV-3")
+
+
+p <- lapply(1:length(genes), function(i){
+  
+  pp <- plot.rna.trend(genes[i], names[i], extra.tc.logCPM.rna)
+
+})
+
+
+pdf("../Output/Toxo_lab_adapt/figs/AP2sENO1_ENO2_trend.pdf", height = 10, width = 8 ,onefile = TRUE)
+
+do.call("grid.arrange", c(p, ncol = 2))  
+
+dev.off()
+
+
+
+
+
+pdf(file = "../Output/Toxo_lab_adapt/figs/ENO2_AP2s_trend.pdf",   # The directory you want to save the file in
+    width = 10, # The width of the plot in inches
+    height = 10) # The height of the plot in inches
+
+#specify to save plots in 2x2 grid
+par(mfrow = c(4,2))
+
+#save plots to PDF
+for (i in 1:8) {   
+  
+  plot.rna.trend(gene.id = genes[i], gene.name = names[i], tc.logCPM = extra.tc.logCPM.rna)
+  
+}
+
+dev.off()
 
 mismatched.trending.rna.ata <- matched.rna.atac %>% filter(trending.x != trending.y) %>% 
   distinct(GeneID, .keep_all = T) %>%
@@ -281,9 +327,14 @@ ENO2_targ <- inner_join(ENO2_targ, orth, by = c("ID" = "TGME49ID") )
 extra.rna.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_rna_dtw_trending_2_clusters_less_stringent.rds")
 extra.atac.dtw.long.filt <- readRDS("../Input/Toxo_lab_adapt/RDS/extra_atac_dtw_trending_2_clusters.rds")
 
+extra.rna.dtw.long.filt <- left_join(extra.rna.dtw.long.filt, gene.desc, by = "GeneID")
+extra.atac.dtw.long.filt <- left_join(extra.atac.dtw.long.filt, gene.desc, by = "GeneID")
 
 ENO2.rna <- extra.rna.dtw.long.filt[extra.rna.dtw.long.filt$GeneID %in% ENO2_targ$TGGT1ID, ]
 ENO2.atac <- extra.atac.dtw.long.filt[extra.atac.dtw.long.filt$GeneID %in% ENO2_targ$TGGT1ID, ]
+
+write.xlsx(ENO2.rna, "../Output/Toxo_lab_adapt/table/ENO2_targets_expr_rna.xlsx")
+write.xlsx(ENO2.atac, "../Output/Toxo_lab_adapt/table/ENO2_targets_acc_atac.xlsx")
 
 ENO2.rna.stat <- ENO2.rna %>% distinct(GeneID, .keep_all = T) %>% group_by(trending) %>% summarise(total = n())
 ENO2.atac.stat <- ENO2.atac %>% distinct(GeneID, .keep_all = T) %>% group_by(trending) %>% summarise(total = n())
@@ -332,6 +383,11 @@ ggsave(filename="../Output/compScBdTgPb/figs/ENO2_target_up_down_rna.png",
        units = "in", # other options are "in", "cm", "mm" 
        dpi = 300
 )
+
+# TF
+
+TF.tab <- read.xlsx("../Input/Toxo_lab_adapt/genes/TF_Info_Updated.xlsx")
+extra.tc.logCPM.rna.tf <- left_join(extra.rna.dtw.long.filt, TF.tab, by = c("GeneID" = "GeneName"))
 
 # ENO2 tarhets
 ENO2.rna.info <-  inner_join(ENO2.rna, ENO2_targ, by = c("GeneID"  ="TGGT1ID"))
