@@ -65,7 +65,8 @@ extra.counts <- getExpr(extra.file.csv, TGGT1_ME49)
 
 
 abs.path <- "~/work/ToxoPlasmaGondiiR/Input/SingleCell/"
-ID.Orthologs <- read.xlsx('~/work/ToxoPlasmaGondiiR/Input/ID_convert/convertIDs.xlsx')
+ID.Orthologs <- read.xlsx('~/work/ToxoplasmaGondii/Input/convertIDs.xlsx')
+
 SW3.meta.rds <- readRDS(file = paste(abs.path, "SW3_meta_data.rds",  sep = ""))
 SW3.sparse.rds <- readRDS(file = paste(abs.path, "SW3_sparse_expression.rds",  sep = ""))
 
