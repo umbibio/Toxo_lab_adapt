@@ -10,4 +10,4 @@ A primary *T. gondii GT1* strain was subjected to lab adaptation by serial in vi
 * ATAC-seq processing
 * RNA-seq clustering
 * ATAC-seq clustering
-* 
+  
